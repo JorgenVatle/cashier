@@ -6,6 +6,7 @@ use Exception;
 use Carbon\Carbon;
 use InvalidArgumentException;
 use Stripe\Card as StripeCard;
+use Stripe\Stripe;
 use Stripe\Token as StripeToken;
 use Stripe\Source as StripeSource;
 use Illuminate\Support\Collection;
@@ -393,6 +394,20 @@ trait Billable
     }
 
     /**
+     * Checks if the entity has the given Source or Token saved as their default payment method.
+     *
+     * @param \Stripe\Source|\Stripe\Token $token
+     * @return boolean
+     */
+    public function hasDefaultCard($token) {
+        $defaultFingerprint = ! is_null($this->defaultCard())
+            ? $this->defaultCard()->fingerprint
+            : null;
+
+        return $token[$token->type]->fingerprint === $defaultFingerprint;
+    }
+
+    /**
      * Update customer's credit card.
      *
      * @param  string  $token
@@ -409,7 +424,7 @@ trait Billable
         // If the given token already has the card as their default source, we can just
         // bail out of the method now. We don't need to keep adding the same card to
         // a model's account every time we go through this particular method call.
-        if ($token[$token->type]->id === $customer->default_source) {
+        if ($this->hasDefaultCard($token)) {
             return;
         }
 
