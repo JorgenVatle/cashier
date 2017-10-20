@@ -470,7 +470,7 @@ trait Billable
     /**
      * Fills the model's properties with the source from Stripe.
      *
-     * @param  \Stripe\Card|\Stripe\BankAccount|null  $card
+     * @param  \Stripe\Card|\Stripe\BankAccount|\Stripe\Source|null  $card
      * @return $this
      */
     protected function fillCardDetails($card)
