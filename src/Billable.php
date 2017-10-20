@@ -383,6 +383,16 @@ trait Billable
     }
 
     /**
+     * Checks if the given string matches the Stripe token prefix format.
+     *
+     * @param $token
+     * @return bool
+     */
+    protected function isStripeToken($token) {
+        return !! preg_match('/tok_.*/', $token);
+    }
+
+    /**
      * Update customer's credit card.
      *
      * @param  string  $token
@@ -392,7 +402,9 @@ trait Billable
     {
         $customer = $this->asStripeCustomer();
 
-        $token = StripeToken::retrieve($token, ['api_key' => $this->getStripeKey()]);
+        $token = $this->isStripeToken($token)
+                    ? StripeToken::retrieve($token, ['api_key' => $this->getStripeKey()])
+                    : StripeSource::retrieve($token, ['api_key' => $this->getStripeKey()]);
 
         // If the given token already has the card as their default source, we can just
         // bail out of the method now. We don't need to keep adding the same card to
