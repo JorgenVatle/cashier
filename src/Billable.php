@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use InvalidArgumentException;
 use Stripe\Card as StripeCard;
 use Stripe\Token as StripeToken;
+use Stripe\Source as StripeSource;
 use Illuminate\Support\Collection;
 use Stripe\Charge as StripeCharge;
 use Stripe\Refund as StripeRefund;
@@ -453,6 +454,10 @@ trait Billable
         } elseif ($card instanceof StripeBankAccount) {
             $this->card_brand = 'Bank Account';
             $this->card_last_four = $card->last4;
+        } elseif ($card instanceof StripeSource && ! is_null($card->card)) {
+            $source = $card;
+            $this->card_brand = $source->card->brand;
+            $this->card_last_four = $source->card->last4;
         }
 
         return $this;
